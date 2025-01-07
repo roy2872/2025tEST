@@ -1,6 +1,9 @@
 package frc.lib.util;
 
+import static edu.wpi.first.units.Units.derive;
+
 import java.lang.module.Configuration;
+import java.security.Principal;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -16,7 +19,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.math.Conversions;
 import frc.lib.util.CTREConfigs;
 import frc.robot.Constants;
-import swervelib.parser.SwerveDriveConfiguration;
 
 
 public class SwerveModule {
@@ -26,7 +28,7 @@ public class SwerveModule {
     private TalonFX driveMotor;
     private CANcoder angleEncoder;
 
-    private final SimpleMotorFeedforward swerveFeedforward = new SimpleMotorFeedforward(0, 0,0);
+    private final SimpleMotorFeedforward swerveFeedforward = new SimpleMotorFeedforward(1, 1,1);
 
     private final DutyCycleOut driveDutyCycle = new DutyCycleOut(0);
     private final VelocityVoltage driveVelocity = new VelocityVoltage(0);
@@ -50,7 +52,7 @@ public class SwerveModule {
         /* Drive Motor Config */
         driveMotor = new TalonFX(moduleConstants.driveMotorID);
         driveMotor.getConfigurator().apply(CTREConfigs.swerveDriveFXConfig);
-        driveMotor.getConfigurator().setPosition(0.0);
+        driveMotor.getConfigurator().setPosition(0, 0.02);
     }
 
 
@@ -67,15 +69,17 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
-        desiredState = SwerveModuleState.optimize(desiredState, getState().angle); 
+        desiredState.optimize(getState().angle);
+        // anglePosition.Position = desiredState.angle.getRotations();
         angleMotor.setControl(anglePosition.withPosition(desiredState.angle.getRotations()));
-        setSpeed(desiredState, isOpenLoop);
+        setSpeed(desiredState, isOpenLoop); // it thinks the angle motor is the drive motor, it acts like it.
     }
 
      private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop){
         if(isOpenLoop){
             driveDutyCycle.Output = desiredState.speedMetersPerSecond / Constants.Swerve.MAX_SPEED;
             driveMotor.setControl(driveDutyCycle);
+
         }
         else {
             driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, Constants.Swerve.wheelCircumference);

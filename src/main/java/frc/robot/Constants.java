@@ -73,7 +73,7 @@ public class Constants {
         public static final double CLOSED_LOOP_RAMP = 0.0;
 
         /* Angle Motor PID Values */
-        public static final double ANGLE_KP = CHOOSEN_MODULE.angleKP;
+        public static final double ANGLE_KP =  CHOOSEN_MODULE.angleKP;
         public static final double ANGLE_KI = CHOOSEN_MODULE.angleKI;
         public static final double ANGLE_KD = CHOOSEN_MODULE.angleKD;
 

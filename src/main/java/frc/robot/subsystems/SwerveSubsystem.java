@@ -8,8 +8,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import java.io.PrintStream;
 import java.util.function.*;
 
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
+
+import com.kauailabs.navx.*;
+import com.kauailabs.navx.frc.AHRS;
 
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.MathUtil;
@@ -45,13 +46,13 @@ public class SwerveSubsystem extends SubsystemBase {
     private PIDController aprilTagPIDController;
 
     private ChassisSpeeds currChassisSpeeds;
-    private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
+    private final PIDController xController = new PIDController(2.0, 0.0, 0.0);
+    private final PIDController yController = new PIDController(2.0, 0.0, 0.0);
+    private final PIDController headingController = new PIDController(1.25, 0.0, 0.0);
 
   Field2d field;
     public SwerveSubsystem() {
-        gyro = new AHRS(NavXComType.kUSB1);
+        gyro = new AHRS();
         field = new Field2d();
 
         mSwerveMods = new SwerveModule[] {
@@ -78,28 +79,36 @@ public class SwerveSubsystem extends SubsystemBase {
                         translation.getY(),
                         rotation);
 
-        SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics
-                .toSwerveModuleStates(currChassisSpeeds);
+        SwerveModuleState[] swerveModuleStates = Constants.Swerve.swerveKinematics.toSwerveModuleStates(currChassisSpeeds);
+        
+
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.MAX_SPEED);
+        
 
         for (SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+            
         }
+        for (SwerveModuleState state : swerveModuleStates) {
+            // System.out.println(state.angle.getRadians());
+        }
+        
     }
 
     public Command driveCommand(DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier angularSpeed,
             BooleanSupplier isFieldOriented) {
         return new RunCommand(() ->
 
-        drive(new Translation2d(
+        drive(
+            new Translation2d(
                 MathUtil.applyDeadband(xSpeed.getAsDouble(), STICK_DEADBAND),
                 MathUtil.applyDeadband(ySpeed.getAsDouble(), STICK_DEADBAND)).times(MAX_SPEED),
-                MathUtil.applyDeadband(angularSpeed.getAsDouble(), STICK_DEADBAND) * MAX_ANGULAR_VELOCITY
-                ,
-                !isFieldOriented.getAsBoolean(),
-                true)
+            MathUtil.applyDeadband(angularSpeed.getAsDouble(), STICK_DEADBAND) /* * MAX_ANGULAR_VELOCITY*/
+            ,
+            !isFieldOriented.getAsBoolean(),
+            true),
 
-                , this);
+        this);
     }
 
     public Command driveConstantSpeed(double x, double y, double rotations, double time) {
@@ -169,7 +178,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getGyroYaw() {
-        return Rotation2d.fromDegrees(-(double) gyro.getFusedHeading()); // changed to fuzed heading
+        return Rotation2d.fromDegrees(-(double) gyro.getYaw()); // changed to fuzed heading
     }
 
     public void resetModulesToAbsolute() {
@@ -233,10 +242,12 @@ public class SwerveSubsystem extends SubsystemBase {
           SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
           SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
       }
+    //   System.out.println(gyro.getYaw());
+      
 
       //System.out.println(getRobotOrientationForSpeaker());
       // System.out.println(mSwerveMods[4].getPosition());
-    }
+    }    
     
 }
 

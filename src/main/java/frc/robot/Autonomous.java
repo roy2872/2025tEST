@@ -47,8 +47,7 @@ public class Autonomous {
         routine.active().onTrue(
             Commands.sequence(
                 routine.resetOdometry(follow),
-                follow.cmd(),
-                Commands.print("aas")
+                follow.cmd()
             )
             
         );
@@ -58,7 +57,7 @@ public class Autonomous {
 
     
     public Command getSelected(){
-       return autoChooser.selectedCommandScheduler();
+       return autoChooser.selectedCommand();
     }
 
 
