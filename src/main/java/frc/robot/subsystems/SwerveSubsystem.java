@@ -22,6 +22,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -90,7 +92,7 @@ public class SwerveSubsystem extends SubsystemBase {
             
         }
         for (SwerveModuleState state : swerveModuleStates) {
-            // System.out.println(state.angle.getRadians());
+            System.out.println(state.angle.getDegrees());
         }
         
     }
@@ -232,7 +234,10 @@ public class SwerveSubsystem extends SubsystemBase {
         // Apply the generated speeds
         driveForAuto(speeds);
     }
-      
+//       StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
+// .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
+//     StructPublisher<ChassisSpeeds> chpublisher = NetworkTableInstance.getDefault()
+//     .getStructTopic("Speeds", getCurrentSpeeds().struct).publish();
 
     @Override
     public void periodic() {
@@ -243,7 +248,8 @@ public class SwerveSubsystem extends SubsystemBase {
           SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
       }
     //   System.out.println(gyro.getYaw());
-      
+        // publisher.set(getModuleStates());
+        // chpublisher.set(getCurrentSpeeds());
 
       //System.out.println(getRobotOrientationForSpeaker());
       // System.out.println(mSwerveMods[4].getPosition());

@@ -1,6 +1,7 @@
 package frc.lib.util;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import frc.robot.Constants;
@@ -10,6 +11,7 @@ public final class CTREConfigs {
     public static TalonFXConfiguration swerveAngleFXConfig = new TalonFXConfiguration();
     public static TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
     public static CANcoderConfiguration swerveCANcoderConfig = new CANcoderConfiguration();
+    public static MotionMagicConfigs mmConfig = swerveAngleFXConfig.MotionMagic;
 
     public CTREConfigs(){
         /** Swerve CANCoder Configuration */
@@ -19,6 +21,8 @@ public final class CTREConfigs {
         /* Motor Inverts and Neutral Mode */
         swerveAngleFXConfig.MotorOutput.Inverted = Constants.Swerve.ANGLE_MOTOR_INVERT;
         swerveAngleFXConfig.MotorOutput.NeutralMode = Constants.Swerve.ANGLE_NEUTRAL_MODE;
+
+        // mmConfig.MotionMagicAcceleration = 16384;
 
         /* Gear Ratio and Wrapping Config */
         swerveAngleFXConfig.Feedback.SensorToMechanismRatio = Constants.Swerve.ANGLE_GEAR_RATIO;

@@ -5,12 +5,18 @@ import static edu.wpi.first.units.Units.derive;
 import java.lang.module.Configuration;
 import java.security.Principal;
 
+import org.dyn4j.geometry.Rotation;
+
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.spark.SparkBase.ControlType;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,7 +34,8 @@ public class SwerveModule {
     private TalonFX driveMotor;
     private CANcoder angleEncoder;
 
-    private final SimpleMotorFeedforward swerveFeedforward = new SimpleMotorFeedforward(1, 1,1);
+    private final SimpleMotorFeedforward swerveFeedforward = new SimpleMotorFeedforward(Constants.Swerve.DRIVE_KS,
+    Constants.Swerve.DRIVE_KV,Constants.Swerve.DRIVE_KA);
 
     private final DutyCycleOut driveDutyCycle = new DutyCycleOut(0);
     private final VelocityVoltage driveVelocity = new VelocityVoltage(0);
@@ -36,25 +43,33 @@ public class SwerveModule {
     /* angle motor control requests */
     private final PositionVoltage anglePosition = new PositionVoltage(0);
 
+    private final MotionMagicVoltage magicVoltage = new MotionMagicVoltage(0);
+
+    private Rotation2d lastAngle;
+
+
     public SwerveModule(int moduleNumber, SwerveModuleConstants moduleConstants){
         this.moduleNumber = moduleNumber;
         this.angleOffset = moduleConstants.angleOffset;
         
         /* Angle Encoder Config */
         angleEncoder = new CANcoder(moduleConstants.cancoderID);
-        angleEncoder.getConfigurator().apply(CTREConfigs.swerveCANcoderConfig);
+        angleEncoder.getConfigurator().apply(CTREConfigs.swerveCANcoderConfig, 0.050);
 
         /* Angle Motor Config */
         angleMotor = new TalonFX(moduleConstants.angleMotorID);
-        angleMotor.getConfigurator().apply(CTREConfigs.swerveAngleFXConfig);
+        angleMotor.getConfigurator().apply(CTREConfigs.swerveAngleFXConfig, 0.050);
         resetToAbsolute();
+        System.out.println(CTREConfigs.swerveAngleFXConfig.Slot0.kP);
 
         /* Drive Motor Config */
         driveMotor = new TalonFX(moduleConstants.driveMotorID);
-        driveMotor.getConfigurator().apply(CTREConfigs.swerveDriveFXConfig);
-        driveMotor.getConfigurator().setPosition(0, 0.02);
-    }
+        driveMotor.getConfigurator().apply(CTREConfigs.swerveDriveFXConfig, 0.050);
+        driveMotor.getConfigurator().setPosition(0, 0.050);
+    
 
+        lastAngle = getState().angle;
+    }
 
     public Rotation2d getCANcoder(){
         return Rotation2d.fromRotations(angleEncoder.getAbsolutePosition().getValueAsDouble());
@@ -71,8 +86,19 @@ public class SwerveModule {
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
         desiredState.optimize(getState().angle);
         // anglePosition.Position = desiredState.angle.getRotations();
-        angleMotor.setControl(anglePosition.withPosition(desiredState.angle.getRotations()));
-        setSpeed(desiredState, isOpenLoop); // it thinks the angle motor is the drive motor, it acts like it.
+        // angleMotor.setControl(magicVoltage.withPosition(desiredState.angle.getRotations()));
+        setAngle(desiredState);
+        setSpeed(desiredState, isOpenLoop);
+    }
+
+    private void setAngle(SwerveModuleState desiredState){
+        Rotation2d angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.Swerve.MAX_SPEED * 0.01)) ? lastAngle : desiredState.angle; //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        anglePosition.Position = angle.getRotations();
+        System.out.println(angle);
+        // System.out.println(anglePosition.Position);
+        angleMotor.setControl(anglePosition);
+
+        lastAngle = angle;
     }
 
      private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop){
