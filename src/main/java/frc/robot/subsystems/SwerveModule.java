@@ -1,31 +1,17 @@
-package frc.lib.util;
+package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.derive;
-
-import java.lang.module.Configuration;
-import java.security.Principal;
-
-import org.dyn4j.geometry.Rotation;
-
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.spark.SparkBase.ControlType;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.math.Conversions;
 import frc.lib.util.CTREConfigs;
+import frc.lib.util.SwerveModuleConstants;
 import frc.robot.Constants;
 
 
@@ -58,17 +44,17 @@ public class SwerveModule {
         
         /* Angle Encoder Config */
         angleEncoder = new CANcoder(moduleConstants.cancoderID);
-        angleEncoder.getConfigurator().apply(CTREConfigs.swerveCANcoderConfig, 0.050);
+        angleEncoder.getConfigurator().apply(configs.swerveCANcoderConfig, 0.050);
 
         /* Angle Motor Config */
         angleMotor = new TalonFX(moduleConstants.angleMotorID);
         
-        angleMotor.getConfigurator().apply(CTREConfigs.swerveAngleFXConfig, 0.050);
+        angleMotor.getConfigurator().apply(configs.swerveAngleFXConfig, 0.050);
         resetToAbsolute();
 
         /* Drive Motor Config */
         driveMotor = new TalonFX(moduleConstants.driveMotorID);
-        driveMotor.getConfigurator().apply(CTREConfigs.swerveDriveFXConfig, 0.050);
+        driveMotor.getConfigurator().apply(configs.swerveDriveFXConfig, 0.050);
         driveMotor.getConfigurator().setPosition(0, 0.050);
     
 
