@@ -5,13 +5,12 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import frc.robot.Constants;
-import frc.robot.Constants.Swerve;
 
 public final class CTREConfigs {
     public static TalonFXConfiguration swerveAngleFXConfig = new TalonFXConfiguration();
     public static TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
     public static CANcoderConfiguration swerveCANcoderConfig = new CANcoderConfiguration();
-    public static MotionMagicConfigs mmConfig = swerveAngleFXConfig.MotionMagic;
+    // public static MotionMagicConfigs mmConfig = swerveAngleFXConfig.MotionMagic;
 
     public CTREConfigs(){
         /** Swerve CANCoder Configuration */
@@ -26,14 +25,14 @@ public final class CTREConfigs {
 
         /* Gear Ratio and Wrapping Config */
         swerveAngleFXConfig.Feedback.SensorToMechanismRatio = Constants.Swerve.ANGLE_GEAR_RATIO;
-        swerveAngleFXConfig.ClosedLoopGeneral.ContinuousWrap = true;
+        swerveAngleFXConfig.ClosedLoopGeneral.ContinuousWrap = false;
         
         /* Current Limiting */
         swerveAngleFXConfig.CurrentLimits.SupplyCurrentLimitEnable = Constants.Swerve.ANGLE_ENABLE_CURRENT_LIMIT;
         swerveAngleFXConfig.CurrentLimits.SupplyCurrentLimit = Constants.Swerve.ANGLE_CURRENT_LIMIT;
 
         /* PID Config */
-        swerveAngleFXConfig.Slot0.kP = Constants.Swerve.ANGLE_KP;
+        swerveAngleFXConfig.Slot0.kP = 40;
         swerveAngleFXConfig.Slot0.kI = Constants.Swerve.ANGLE_KI;
         swerveAngleFXConfig.Slot0.kD = Constants.Swerve.ANGLE_KD;
 
@@ -60,5 +59,7 @@ public final class CTREConfigs {
 
         swerveDriveFXConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = Constants.Swerve.CLOSED_LOOP_RAMP;
         swerveDriveFXConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = Constants.Swerve.CLOSED_LOOP_RAMP;
+
+        
     }
 }

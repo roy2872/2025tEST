@@ -8,6 +8,8 @@ import java.security.Principal;
 import org.dyn4j.geometry.Rotation;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -43,14 +45,16 @@ public class SwerveModule {
     /* angle motor control requests */
     private final PositionVoltage anglePosition = new PositionVoltage(0);
 
-    private final MotionMagicVoltage magicVoltage = new MotionMagicVoltage(0);
+    // private final MotionMagicVoltage magicVoltage = new MotionMagicVoltage(0);
 
     private Rotation2d lastAngle;
 
+    private CTREConfigs configs;
 
     public SwerveModule(int moduleNumber, SwerveModuleConstants moduleConstants){
         this.moduleNumber = moduleNumber;
         this.angleOffset = moduleConstants.angleOffset;
+        configs = new CTREConfigs();
         
         /* Angle Encoder Config */
         angleEncoder = new CANcoder(moduleConstants.cancoderID);
@@ -58,9 +62,9 @@ public class SwerveModule {
 
         /* Angle Motor Config */
         angleMotor = new TalonFX(moduleConstants.angleMotorID);
+        
         angleMotor.getConfigurator().apply(CTREConfigs.swerveAngleFXConfig, 0.050);
         resetToAbsolute();
-        System.out.println(CTREConfigs.swerveAngleFXConfig.Slot0.kP);
 
         /* Drive Motor Config */
         driveMotor = new TalonFX(moduleConstants.driveMotorID);
@@ -85,8 +89,6 @@ public class SwerveModule {
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){
         desiredState.optimize(getState().angle);
-        // anglePosition.Position = desiredState.angle.getRotations();
-        // angleMotor.setControl(magicVoltage.withPosition(desiredState.angle.getRotations()));
         setAngle(desiredState);
         setSpeed(desiredState, isOpenLoop);
     }
@@ -94,8 +96,6 @@ public class SwerveModule {
     private void setAngle(SwerveModuleState desiredState){
         Rotation2d angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.Swerve.MAX_SPEED * 0.01)) ? lastAngle : desiredState.angle; //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         anglePosition.Position = angle.getRotations();
-        System.out.println(angle);
-        // System.out.println(anglePosition.Position);
         angleMotor.setControl(anglePosition);
 
         lastAngle = angle;

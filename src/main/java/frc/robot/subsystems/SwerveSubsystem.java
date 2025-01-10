@@ -105,7 +105,7 @@ public class SwerveSubsystem extends SubsystemBase {
             new Translation2d(
                 MathUtil.applyDeadband(xSpeed.getAsDouble(), STICK_DEADBAND),
                 MathUtil.applyDeadband(ySpeed.getAsDouble(), STICK_DEADBAND)).times(MAX_SPEED),
-            MathUtil.applyDeadband(angularSpeed.getAsDouble(), STICK_DEADBAND) /* * MAX_ANGULAR_VELOCITY*/
+            MathUtil.applyDeadband(angularSpeed.getAsDouble(), STICK_DEADBAND)  * MAX_ANGULAR_VELOCITY
             ,
             !isFieldOriented.getAsBoolean(),
             true),
