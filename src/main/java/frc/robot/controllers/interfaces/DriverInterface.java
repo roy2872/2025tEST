@@ -1,6 +1,5 @@
 package frc.robot.controllers.interfaces;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;

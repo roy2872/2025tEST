@@ -1,6 +1,5 @@
 package frc.robot.controllers.controllers;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.GenericHID;
